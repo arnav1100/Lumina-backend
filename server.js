@@ -5,35 +5,37 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const API_KEY = process.env.GROQ_API_KEY;
 
 app.post('/chat', async (req, res) => {
   try {
     const { messages, system, max_tokens } = req.body;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const groqMessages = [];
+    if (system) groqMessages.push({ role: 'system', content: system });
+    groqMessages.push(...messages);
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'x-api-key': API_KEY
+        'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: max_tokens || 800,
-        system: system || '',
-        messages: messages || []
+        messages: groqMessages
       })
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Anthropic API error:', JSON.stringify(data));
-      return res.status(response.status).json({ error: data.error?.message || 'Anthropic API error' });
+      console.error('Groq API error:', JSON.stringify(data));
+      return res.status(response.status).json({ error: data.error?.message || 'Groq API error' });
     }
 
-    const text = data.content?.[0]?.text || '';
+    const text = data.choices?.[0]?.message?.content || '';
     res.json({ text });
 
   } catch (e) {
