@@ -22,7 +22,7 @@ app.post('/chat', async (req, res) => {
         'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         max_tokens: max_tokens || 800,
         messages: groqMessages
       })
@@ -44,7 +44,7 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('Lumina Backend Running ✓'));
+app.get('/', (req, res) => res.send('Lumina Backend Running âœ“'));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
